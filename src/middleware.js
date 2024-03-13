@@ -7,7 +7,12 @@ export function middleware(request) {
   console.log(
     "Request ip is: ============" + request.headers.get("X-Forwarded-For")
   );
-  const allow =process.env.NEXT_PUBLIC_WHITE_LIST_IPV4
+  console.log(
+    "type of x-forwarded-for is ",
+    typeof request.headers.get("X-Forwarded-For")
+  );
+
+  const allow = process.env.NEXT_PUBLIC_WHITE_LIST_IPV4;
   console.log(allow);
   const rawAllowedCIDR = convertRawStrToArrayIp(allow);
   const clientIP =
@@ -26,4 +31,4 @@ export const config = {
   // carefully about rerender loop -> cause localhost redirected you too many times.
   // ignore path which cause error
   matcher: "/((?!api|_next|static|public|assets|favicon.ico|error).*)",
-}
+};
