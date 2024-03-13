@@ -20,7 +20,9 @@ export function middleware(request) {
       ? ["127.0.0.1"]
       : convertRawStrToArrayIp(request.headers.get("X-Forwarded-For"));
 
-  if (!isGrantedClient(clientIP, rawAllowedCIDR)) {
+  const isGranted =isGrantedClient(clientIP, rawAllowedCIDR)
+  console.log('isGranted: ', isGranted)
+  if (!isGranted) {
     return NextResponse.redirect(new URL("/error", request.url));
   }
   return response;
