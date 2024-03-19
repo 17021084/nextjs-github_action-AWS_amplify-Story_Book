@@ -12,18 +12,19 @@ export function middleware(request) {
     typeof request.headers.get("X-Forwarded-For")
   );
 
-  const allow = process.env.NEXT_PUBLIC_WHITE_LIST_IPV4;
-  console.log(allow);
-  const rawAllowedCIDR = convertRawStrToArrayIp(allow);
+  const rawAllowedCIDR = process.env.NEXT_PUBLIC_WHITE_LIST_IPV4;
   const clientIP =
     request.headers.get("X-Forwarded-For") == "::1"
-      ? ["127.0.0.1"]
-      : convertRawStrToArrayIp(request.headers.get("X-Forwarded-For"));
+      ? "127.0.0.1"
+      : request.headers.get("X-Forwarded-For")
 
   const isGranted =isGrantedClient(clientIP, rawAllowedCIDR)
   console.log('isGranted: ', isGranted)
-  if (!isGranted) {
-    return NextResponse.redirect(new URL("/error", request.url));
+
+  if(process.env.NEXT_PUBLIC_MAINTENANCE_MODE==="true"){
+    if (!isGranted) {
+      return NextResponse.redirect(new URL("/error", request.url));
+    }
   }
   return response;
 }
