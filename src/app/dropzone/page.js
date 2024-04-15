@@ -2,6 +2,9 @@
 import axios from "axios";
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import JSZip from "jszip";
+import { saveAs } from 'file-saver';
+
 
 export default function Dropzone() {
   const [files, setFiles] = useState([]);
@@ -102,10 +105,6 @@ export default function Dropzone() {
     }
   };
 
-  
-
-
-  
   // const multipInputHander = (e) => {
   //   console.log(e)
   //   const files = e.target.files; // Get the selected files
@@ -115,6 +114,36 @@ export default function Dropzone() {
   //     // You can also read the file content, upload it, etc.
   //   }
   // };
+
+  const downloadUploadedFiles = async () => {
+    try {
+      const zip = new JSZip();
+      console.log("files", files);
+      files.forEach((file) => {
+        zip.file(file.name, file.binaryStr);
+      });
+
+      // zip.generateAsync({ type: "blob" }).then(function (content) {
+      //   // see FileSaver.js
+      //   saveAs(content, "example.zip");
+      // });
+      let zipBlob;
+      if (JSZip.support.uint8array) {
+        // zipBlob = await zip.generateAsync({ type: "uint8array" });
+        zip.generateAsync({ type: "uint8array" }).then(function (content) {
+          const file = new Blob([content], { type: 'application/zip' });
+          saveAs(file, "example.zip");
+        });
+      } else {
+        zip.generateAsync({ type: "string" }).then(function (content) {
+          const file = new Blob([content], { type: 'application/zip' });
+          saveAs(file, "example.zip");
+        });
+      }
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
 
   return (
     <div>
@@ -135,6 +164,12 @@ export default function Dropzone() {
       <div>
         <button onClick={() => uploadFiles()}> UploadFile </button>
       </div>
+
+      <h1>Download Uploaded===========================</h1>
+      <div>
+        <button onClick={() => downloadUploadedFiles()}> Download </button>
+      </div>
+
       {/* <div>
         <input
           onChange={(e) => multipInputHander(e)}
